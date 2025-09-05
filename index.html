@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Libertex - Professional Trading Platform</title>
+    
+    <!-- Facebook Pixel Code -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1234567890123456'); // Replace with your actual Pixel ID
+      fbq('track', 'PageView');
+    </script>
+    <!-- End Facebook Pixel Code -->
+    
+    <!--  Tealium (Production Only) -->
+    <script type="module">
+        // Only load Tealium in production to avoid fetch errors during local development
+        if (!import.meta.env.DEV) {
+            window.utag_data = {
+                page_system: "website",
+                page_language: "en",
+                page_channel: "web",
+                page_environment: "prod",
+                page_path: "/",
+                page_type: "home_page",
+                page_broker: "BVI",
+                event_account_name: "lbx",
+                event_type: "view"
+            };
+            (function(a, b, c, d) {
+                a = '//tags.tiqcdn.com/utag/fxclub/main/prod/utag.js';
+                b = document;
+                c = 'script';
+                d = b.createElement(c);
+                d.src = a;
+                d.type = 'text/java' + c;
+                d.async = true;
+                a = b.getElementsByTagName(c)[0];
+                a.parentNode.insertBefore(d, a);
+            })();
+        }
+    </script>
+    <!--  tealium end  -->
+    
+    <!-- Глобальные стили для сообщений об ошибках -->
+    <script>
+      // Применяем стили ко всем сообщениям об ошибках на странице
+      function applyGlobalErrorStyles() {
+        const errorSelectors = [
+          '.error', '.error-message', '.field-error', '.validation-error',
+          '[class*="error"]', '[class*="Error"]', '.fxc-error', '.ll-error'
+        ];
+        
+        errorSelectors.forEach(selector => {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(element => {
+            // Стилизуем только сообщения об ошибках (не поля ввода)
+            if (element.tagName !== 'INPUT') {
+              element.style.fontSize = '12px';
+              element.style.color = '#dc2626';
+              element.style.marginTop = '4px';
+              element.style.display = 'block';
+              element.style.lineHeight = '1.2';
+              element.style.fontWeight = '400';
+            }
+          });
+        });
+        
+      }
+      
+      // Применяем стили при загрузке страницы
+      document.addEventListener('DOMContentLoaded', applyGlobalErrorStyles);
+      
+      // Применяем стили через интервалы для динамически создаваемых элементов
+      setInterval(applyGlobalErrorStyles, 500);
+      
+      // Применяем стили при изменении DOM (с проверкой на существование body)
+      document.addEventListener('DOMContentLoaded', function() {
+        if (document.body) {
+          const observer = new MutationObserver(applyGlobalErrorStyles);
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+      });
+      
+    </script>
+  </head>
+  <body>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1234567890123456&ev=PageView&noscript=1"
+    /></noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

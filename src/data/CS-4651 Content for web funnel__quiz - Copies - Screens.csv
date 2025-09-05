@@ -1,0 +1,121 @@
+,EN, RU
+,,
+Trust Element 1,,
+TXT," More than 3 million clients in 120+ countries have chosen Libertex, an award-winning platform","Нас уже выбрали более 3 миллионов человек из 120+ стран. Libertex — платформа, которой доверяют по всему миру."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 2,,
+TXT,"You're ready to level up!
+This journey is built on expert insights and tailored content — made to match your skills and goals","Переходите на следующий уровень
+Всё, что будет дальше, создано с учётом вашего уровня и целей. Вас ждёт продуманный маршрут на основе экспертных решений и реального опыта."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 2,,
+TXT,"No stress — we’ll guide you step by step
+Every stage is built on expert research and tailored to your skills, so you can grow with confidence","Разберёмся во всем вместе
+Не нужно торопиться. Мы будем сопровождать вас на каждом шаге, чтобы вы чувствовали уверенность и понимали, что делаете."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 3,,
+TXT,"We appreciate your trust — your information is safe with us
+Join over 3 million players who’ve already begun their journey to financial freedom—and conquered their money worries along the way","Ваши данные в безопасности
+Спасибо, что доверяете нам. Мы бережно относимся к вашим данным и никогда не передаём их третьим лицам."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 4,,
+TXT,"Awesome!
+Only 23% feel confident about money (Capital One Survey). Most stay stuck—but not you
+We’ll map your personal path to success. Let’s go!","Первый шаг — самый важный
+Лишь 23% людей уверены в своих финансах (по данным Capital One). Но вы уже движетесь в нужном направлении."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 4,,
+TXT,"No stress—we’ve got you!
+77% worry about money (Capital One Sruvey). We’ll build your personal roadmap forward","Вы не одни!
+77% беспокоятся о деньгах (Capital One). Мы поможем вам навести порядок и составить понятный план."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 5,,
+TXT,"Great! We’ve cracked the code!
+220+ companies soared 190%+ last year (Yahoo Finance Data). We’ll help you spot the winners","Цифры говорят сами за себя
+Более 220 компаний выросли более чем на 190% за прошлый год (по данным Yahoo Finance). Мы покажем, как находить такие возможности."
+BUTTON,CONTINUE,Продолжить
+,,
+Trust Element 5,,
+TXT,"Awesome!
+90% want to invest—but half don’t start (Stash Research). We’ll get you there in weeks—tailored to your skills","Начать проще, чем кажется
+90% людей хотят инвестировать, но половина так и не решается (по исследованию Stash). Мы подскажем, с чего начать и как двигаться вперёд."
+BUTTON,CONTINUE,Продолжить
+,,
+Custom,,
+HL,Check Your Wealth Growth Profile,Проверьте свой финансовый профиль
+Score,Beginner,Начинающий инвестор
+TXT,"You’re just getting started — and that’s a great place to be!
+We’ll guide you through the basics so you can build skills, start trading with confidence, and unlock your profit potential step by step.","Ваш подход: хочу разобраться
+Вы только начинаете интересоваться возможностями рынка. Пока многое кажется новым и сложным, но это именно тот момент, когда можно спокойно вникнуть и найти свою траекторию."
+Score,Intermediate,Уверенный участник рынка
+TXT,"You’ve got the basics — now it’s time to go further!
+Refine your strategy, explore smarter tools, and level up your trading game as you move closer to consistent results.","Ваш подход: готов развиваться
+Базовые шаги уже позади. Сейчас вы ищете более продуманные решения и начинаете выстраивать стратегию, которая подходит именно вам.
+"
+Score,Experienced,Продвинутый пользователь
+TXT,"You know your way around the markets — now let’s optimise your edge!
+With advanced insights and high-performance tools, you’re ready to trade smarter and aim higher.","Ваш подход: работаю по своей стратегии
+Вы знаете, чего хотите, и уверенно пользуетесь инструментами. Мы поможем усилить ваши результаты точными данными и актуальными идеями."
+SHL,Based on your chosen market:,На основе выбранного вами рынка:
+Market,Stocks,Акции
+Market,Forex,Форекс
+Market,Crypto,Криптовалюта
+Market,Commodities,Сырьевые товары
+Market,Index,Индексы
+SHL,This is our recommendation:,Мы рекомендуем обратить внимание на:
+Stocks,"Nvidia (NVDA) surged 180% in 2024, driven by booming demand for AI tech and its strong market leadership.",Nvidia (NVDA) выросла на 180% в 2024 году благодаря взрывному спросу на ИИ и устойчивым позициям на рынке.
+Forex,EUR/USD rose 5.1% over the past year. It’s one of the most traded and volatile currency pairs — ideal for active traders.,"EUR/USD выросла на 5,1% за последний год. Это одна из самых популярных и волатильных валютных пар — подходит для активной торговли"
+Crypto,"Bitcoin (BTC) jumped 135.9% in a year, breaking above $100,000 for the first time. Momentum remains strong.","Биткоин (BTC) подорожал на 135,9% за год и впервые преодолел отметку $100 000. Остается самым сильным на рынке."
+Commodities,"Gold climbed 46.5% over the past year, reaching an all-time high of $3,410 in May 2025 — and it’s still rising.","Золото выросло на 46,5% и достигло исторического максимума $3410 в мае 2025 года. Тренд остаётся восходящим."
+Index,"Nasdaq gained 28.6% and the S&P 500 23% in 2024, powered by the AI boom and rising tech giants.","Nasdaq вырос на 28,6%, а S&P 500 — на 23% в 2024 году. Основной драйвер — развитие ИИ и рост техсектора."
+BUTTON,CONTINUE,Продолжить
+,,
+Final,,
+HL,Check Your Wealth Growth Challenge,Проверьте свою финансовую цель
+SHL,Your goal is:,К чему вы стремитесь?
+Goal,Buy a house,Купить недвижимость
+Goal,Buy a car,Купить автомобиль
+Goal,Get married,Создать семью
+Goal,Take vacations,Путешествовать
+Goal,Save for retirement,Копить на пенсию
+Goal,Other,Другое
+SHL,"Based on your profile, we estimate that you will be ready to achieve it by:","По нашему прогнозу, вы сможете достичь этой цели к:
+"
+"Date - Add full calendar, this is just an example","1 January, 2026","1 января 2026
+1 февраля 2026
+1 марта 2026
+1 апреля 2026
+1 мая 2026
+1 июня 2026
+1 июля 2026
+1 августа 2026
+1 сентября 2026
+1 октября 2026
+1 ноября 2026
+1 декабря 2026"
+,,
+Final 2 - NEW,Sketch: https://docs.google.com/presentation/d/1fe0dl5bk8ECS066ZR57dPmXnkSThb-ATUhhasCIscJ0/edit?usp=sharing,
+HL,Your Step-by-Step Trading Guide Is Ready,Пошаговое руководство по трейдингу ждёт вас
+SHL,Your guide’s waiting in the Libertex app—download now and start growing your wealth!,Заберите его в приложении Libertex — скачайте сейчас и начните преумножать свой капитал!
+Trust Element,25+ Years in the Market,25+ лет на рынке
+Trust Element,3M+ Clients Worldwide,3+ миллиона клиентов по всему миру
+Trust Element,24/7 Support,Поддержка 24/7
+HL,See What Real Users Say About Us,Что говорят о нас пользователи:
+Review,"Libertex’s guide made trading finally click for me. Clear, fast, and super practical, perfect for beginners who want real results
+Pavel - New Trader","«Руководство от Libertex помогло мне наконец-то разобраться в трейдинге. Всё чётко, быстро и по делу — идеально для новичков, которые хотят реальных результатов!»  Павел, начинающий трейдер"
+Review,"The tools just work. From technical indicators to instant alerts, Libertex helps me spot and act on opportunities faster
+Sergei - Part-time Trader",«Инструменты реально работают. В Libertex есть всё — от индикаторов до уведомлений в реальном времени. Они действительно помогают быстрее находить прибыльные возможности и сразу их использовать!» Сергей - трейдер-любитель
+HL,Why Libertex™? Try Our Smart Trading Tools,Почему Libertex™? Попробуйте умные инструменты для торговли:
+Feature,ChatGPT,ChatGPT
+Feature,Trading Signals,Торговые сигналы
+Feature,Trading Ideas,Торговые идеи
+Feature,Auto-Trading,Автотрейдинг
+Feature,Quick Take Profit,Быстрый тейк-профит
+Feature,Copy Trading,Копитрейдинг
+Button,GET THE GUIDE,Получить гайд
