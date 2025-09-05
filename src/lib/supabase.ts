@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+// Treat placeholders or empty strings as missing
+const isPlaceholder = (v?: string) => !v || v.startsWith('${') || v.trim() === '';
+const supabaseUrl = isPlaceholder(rawUrl) ? undefined : rawUrl;
+const supabaseAnonKey = isPlaceholder(rawKey) ? undefined : rawKey;
 const isConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 // Validate URL format with more specific error handling (warn only)
