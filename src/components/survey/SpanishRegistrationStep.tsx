@@ -82,6 +82,19 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
           try {
             // Defensive: if SDK provides destroy, clear previous instances
             try { (window as any).llLanding?.destroy?.(); } catch {}
+
+            // Ensure any expected SDK containers exist to avoid null innerHTML
+            const ensureContainer = (id: string) => {
+              if (!document.getElementById(id)) {
+                const el = document.createElement('div');
+                el.id = id;
+                el.style.display = 'block';
+                (formRef.current || document.body).appendChild(el);
+              }
+            };
+            // Common container ids some SDK builds expect
+            ['ll-captcha-container', 'captcha-container', 'captcha', 'llcaptcha'].forEach(ensureContainer);
+
             const body = document.querySelector('body');
             const regForm = (window as any).llLanding.create({
               form: "#email-form",
