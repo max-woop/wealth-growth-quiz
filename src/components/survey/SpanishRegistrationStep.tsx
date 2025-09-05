@@ -10,9 +10,11 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
   const [integrationError, setIntegrationError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Skip remote integration in dev/local to avoid CORS/network errors
-    // Always load remote script to match provided integration
-    const shouldUseRemote = true;
+    // Temporarily disable remote SDK integration to prevent runtime errors
+    const ENABLE_REMOTE = false;
+    if (!ENABLE_REMOTE) {
+      return;
+    }
 
     const initializeForm = () => {
       // Remove any existing scripts

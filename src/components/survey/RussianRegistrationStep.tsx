@@ -9,6 +9,11 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
   const integrationReadyRef = useRef<boolean>(false);
 
   useEffect(() => {
+    const ENABLE_REMOTE = false;
+    if (!ENABLE_REMOTE) {
+      return;
+    }
+
     const initializeForm = () => {
       // Remove any existing scripts
       const existingScript = document.querySelector('script[src*="lib.fxclub.org"]');
