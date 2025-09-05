@@ -10,9 +10,11 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
   const [integrationError, setIntegrationError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Skip remote integration in dev/local to avoid CORS/network errors
-    // Always load remote script to match provided integration
-    const shouldUseRemote = true;
+    // Feature flag to enable/disable remote SDK integration at build time
+    const ENABLE_REMOTE_ES = (import.meta as any).env?.VITE_ENABLE_REMOTE_ES === 'true';
+    if (!ENABLE_REMOTE_ES) {
+      return;
+    }
 
     const initializeForm = () => {
       // Remove any existing scripts
@@ -78,6 +80,8 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
           }
 
           try {
+            // Defensive: if SDK provides destroy, clear previous instances
+            try { (window as any).llLanding?.destroy?.(); } catch {}
             const body = document.querySelector('body');
             const regForm = (window as any).llLanding.create({
               form: "#email-form",
