@@ -83,43 +83,30 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
               form: "#email-form",
               apiKey: "0f0db22798ae5405f30e5c1233bb3152863102af",
               registrationCallback: function (data: any, goFurther: () => void) {
-
-                if ((window as any).utag) {
-                  try {
-                    (window as any).utag.view({
-                      "page_broker": "bvi",
-                      "page_language": "es-lm",
-                      "page_system": "promo",
-                      "product_category": "registration",
-                      "event_type": "order",
-                      "customer_profile_id": data.data?.clientID,
-                    }, () => {
-                      body?.classList.toggle('loading');
-                      setTimeout(() => {
-                        try { goFurther && goFurther(); } catch {}
-                        const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                        const name = data.data?.name || data.data?.firstName || 'User';
-                        onNext(name, email);
-                      }, 1000);
-                    });
-                  } catch (e) {
-                    console.warn('utag.view failed', e);
-                    body?.classList.toggle('loading');
-                    setTimeout(() => {
-                      try { goFurther && goFurther(); } catch {}
-                      const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                      const name = data.data?.name || data.data?.firstName || 'User';
-                      onNext(name, email);
-                    }, 1000);
+                // Always route to Results inside the app (do not redirect to terminal)
+                try {
+                  if ((window as any).utag) {
+                    try {
+                      (window as any).utag.view({
+                        "page_broker": "bvi",
+                        "page_language": "es-lm",
+                        "page_system": "promo",
+                        "product_category": "registration",
+                        "event_type": "order",
+                        "customer_profile_id": data.data?.clientID,
+                      });
+                    } catch (e) {
+                      console.warn('utag.view failed', e);
+                    }
                   }
-                } else {
-                  body?.classList.toggle('loading');
-                  setTimeout(() => {
-                    try { goFurther && goFurther(); } catch {}
-                    const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                    const name = data.data?.name || data.data?.firstName || 'User';
-                    onNext(name, email);
-                  }, 1000);
+                  const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                  const name = data.data?.name || data.data?.firstName || 'User';
+                  onNext(name, email);
+                } catch (err) {
+                  console.warn('registrationCallback error, using local fallback', err);
+                  const email = (emailInput as HTMLInputElement)?.value || 'user@example.com';
+                  const name = (email.split('@')[0]) || 'Usuario';
+                  onNext(name, email);
                 }
               }
             });

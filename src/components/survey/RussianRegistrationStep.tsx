@@ -6,6 +6,7 @@ interface RussianRegistrationStepProps {
 
 const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNext }) => {
   const formRef = useRef<HTMLFormElement>(null);
+  const integrationReadyRef = useRef<boolean>(false);
 
   useEffect(() => {
     const initializeForm = () => {
@@ -59,30 +60,34 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
               form: "#email-form",
               apiKey: "d24c74c0d020796a1f7c81c1d0689b00bad73716",
               registrationCallback: function (data: any, goFurther: () => void) {
-                
-                // Send utag per requirements
-                if ((window as any).utag) {
-                  try {
-                    (window as any).utag.view({
-                      "page_broker": "bvi",
-                      "page_language": "ru-ru",
-                      "page_system": "promo",
-                      "product_category": "registration",
-                      "event_type": "order",
-                      "customer_profile_id": data.data?.FxBankClientID,
-                    });
-                  } catch (e) {
-                    console.warn('utag.view failed', e);
+                // Route to Results inside the app, not to terminal
+                try {
+                  if ((window as any).utag) {
+                    try {
+                      (window as any).utag.view({
+                        "page_broker": "bvi",
+                        "page_language": "ru-ru",
+                        "page_system": "promo",
+                        "product_category": "registration",
+                        "event_type": "order",
+                        "customer_profile_id": data.data?.FxBankClientID,
+                      });
+                    } catch (e) {
+                      console.warn('utag.view failed', e);
+                    }
                   }
+                  const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                  const name = data.data?.name || data.data?.firstName || 'User';
+                  onNext(name, email);
+                } catch (err) {
+                  console.warn('registrationCallback error, using local fallback', err);
+                  const localEmail = (emailInput as HTMLInputElement)?.value || 'user@example.com';
+                  const localName = (localEmail.split('@')[0]) || 'Пользователь';
+                  onNext(localName, localEmail);
                 }
-
-                // Go further in provider, then advance app flow
-                try { goFurther && goFurther(); } catch {}
-                const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                const name = data.data?.name || data.data?.firstName || 'User';
-                onNext(name, email);
               }
             });
+            integrationReadyRef.current = true;
           } catch (error) {
             console.error('Error initializing FXClub form:', error);
           }
@@ -146,6 +151,17 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
     };
   }, [onNext]);
 
+  // Local fallback submit handler when integration is not ready
+  const handleLocalSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (integrationReadyRef.current) return; // Remote integration will handle
+    e.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+    const email = (form.querySelector('#email') as HTMLInputElement)?.value || 'user@example.com';
+    const name = email.includes('@') ? email.split('@')[0] : 'Пользователь';
+    onNext(name, email);
+  };
+
   return (
     <div className="animate-fadeIn py-2">
       <div className="text-center mb-6">
@@ -165,6 +181,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
           data-name="Email_Form" 
           id="email-form" 
           name="email-form"
+          onSubmit={handleLocalSubmit}
         >
           <div className="form-view space-y-4">
             <div className="inputcontainer">

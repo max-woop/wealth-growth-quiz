@@ -396,7 +396,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </button>
           
           {/* Floating elements around button */}
-          <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full text-xs font-bold animate-bounce">
+          <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full text-xs font-bold animate-bounce hidden sm:block">
             {language === 'ru' ? 'БЕСПЛАТНО' : 'FREE'}
           </div>
         </div>
@@ -564,7 +564,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
       {/* Enhanced Trust Stats - Improved Design */}
       <div className="mb-6 md:mb-8">
         <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl p-3 shadow-lg border border-blue-100">
-          <div className="grid grid-cols-3 gap-2 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-4xl mx-auto">
             {/* Years in Market */}
             <div className="text-center group">
               <div className="relative mb-2">
@@ -612,7 +612,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </div>
           
           {/* Additional trust indicators */}
-          <div className="flex justify-center items-center gap-2 mt-2 pt-2 border-t border-blue-200">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-2 pt-2 border-t border-blue-200 text-center">
             <div className="flex items-center gap-2 text-blue-700">
               <Shield className="w-3 h-3" />
               <span className="text-xs font-semibold">{language === 'ru' ? 'Лицензированный' : 'Licensed'}</span>
