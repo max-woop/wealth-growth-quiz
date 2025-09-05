@@ -125,6 +125,7 @@ interface SessionState {
   shouldTrack: boolean;
   isQuizCompleted: boolean;
   timeoutId: ReturnType<typeof setTimeout> | null;
+  lastRowId?: string | null;
 }
 
 export function useQuizSession() {
@@ -205,6 +206,53 @@ export function useQuizSession() {
     setIsLoading(false);
   }, []);
 
+  // Wait for Tealium/GA to provide a stable visitor_id and update state/DB once
+  const waitForAccurateVisitorId = useCallback(async (): Promise<string | null> => {
+    const tryGet = (): string | null => {
+      try {
+        if (typeof window !== 'undefined') {
+          if (window.utag_data && window.utag_data.visitor_id) return window.utag_data.visitor_id as string;
+          if (window.utag && window.utag.data && window.utag.data.visitor_id) return window.utag.data.visitor_id as string;
+          // Common GA cookie fallback
+          const gaCookie = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith('_ga='));
+          if (gaCookie) {
+            const val = gaCookie.split('=')[1];
+            if (val && val.length > 10) return val;
+          }
+        }
+      } catch {}
+      return null;
+    };
+
+    const immediate = tryGet();
+    if (immediate) return immediate;
+
+    return await new Promise(resolve => {
+      let attempts = 0;
+      const maxAttempts = 50; // up to ~5s
+      const interval = setInterval(() => {
+        attempts++;
+        const id = tryGet();
+        if (id || attempts >= maxAttempts) {
+          clearInterval(interval);
+          resolve(id || null);
+        }
+      }, 100);
+    });
+  }, []);
+
+  const updateVisitorIdInDb = useCallback(async (rowId: string, newVisitorId: string) => {
+    try {
+      if (!isConnected) return;
+      await supabase
+        .from('quiz_sessions')
+        .update({ visitor_id: newVisitorId })
+        .eq('id', rowId);
+    } catch (e) {
+      console.warn('Failed to update visitor_id in Supabase:', e);
+    }
+  }, [isConnected]);
+
   const sendDataToSupabase = useCallback(async (finalData: SessionState) => {
     if (!isConnected) {
       console.warn('Not connected to Supabase, skipping data send');
@@ -261,7 +309,11 @@ export function useQuizSession() {
       }
       
       setError(null);
-      return data.id;
+      // Store last inserted row id for potential visitor_id correction later
+      if (data && data.id) {
+        setSessionState(prev => ({ ...prev, lastRowId: data.id }));
+      }
+      return data?.id;
     } catch (err) {
       console.error('Error sending data to Supabase:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -345,7 +397,12 @@ export function useQuizSession() {
       const newState = {
         ...prev,
         responses: { ...prev.responses, ...responses },
-        trackingData: { ...prev.trackingData, ...trackingData }
+        trackingData: {
+          ...prev.trackingData,
+          ...trackingData,
+          // Ensure visitorId is always present
+          visitorId: (trackingData && trackingData.visitorId) || prev.trackingData.visitorId || localStorage.getItem('libertex_visitor_id') || generateVisitorId()
+        }
       };
 
       // Capture email when it's provided
@@ -473,6 +530,27 @@ export function useQuizSession() {
     initializeSession();
     testConnection();
   }, [initializeSession, testConnection]);
+
+  // Attempt to refine visitor_id after initial mount when Tealium/GA are ready
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const accurateId = await waitForAccurateVisitorId();
+      if (cancelled || !accurateId) return;
+      const currentId = sessionState.trackingData.visitorId;
+      if (accurateId && accurateId !== currentId) {
+        localStorage.setItem('libertex_visitor_id', accurateId);
+        setSessionState(prev => ({
+          ...prev,
+          trackingData: { ...prev.trackingData, visitorId: accurateId }
+        }));
+        if (sessionState.lastRowId) {
+          updateVisitorIdInDb(sessionState.lastRowId, accurateId);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [waitForAccurateVisitorId, updateVisitorIdInDb, sessionState.trackingData.visitorId, sessionState.lastRowId]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
