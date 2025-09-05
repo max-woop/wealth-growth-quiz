@@ -177,7 +177,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
         <form 
           ref={formRef} 
           method="post" 
-          className="horizontal_form space-y-4"
+          className="space-y-4"
           data-name="Email_Form" 
           id="email-form" 
           name="email-form"

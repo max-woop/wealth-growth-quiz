@@ -365,7 +365,11 @@ export function useQuizSession() {
     try {
       const envValidation = validateEnvironment();
       if (!envValidation.isValid) {
-        throw new Error(`Environment configuration issues: ${envValidation.issues.join(', ')}`);
+        console.warn(`Environment configuration issues: ${envValidation.issues.join(', ')}`);
+        // Proceed in offline mode (do not throw here)
+        setIsConnected(false);
+        setError(null);
+        return;
       }
 
       const connectionTest = await testSupabaseConnection(2);
