@@ -58,7 +58,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
           try {
             (window as any).fxcLanding.create({
               form: "#email-form",
-              apiKey: "1c97f97a95a2afa1cadd9ef6f76366f22fd9aeb5",
+              apiKey: "d24c74c0d020796a1f7c81c1d0689b00bad73716",
               registrationCallback: function (data: any, goFurther: () => void) {
                 // Route to Results inside the app, not to terminal
                 try {
