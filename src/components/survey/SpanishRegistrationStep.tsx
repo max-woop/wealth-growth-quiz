@@ -10,11 +10,9 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
   const [integrationError, setIntegrationError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Temporarily disable remote SDK integration to prevent runtime errors
-    const ENABLE_REMOTE = false;
-    if (!ENABLE_REMOTE) {
-      return;
-    }
+    // Skip remote integration in dev/local to avoid CORS/network errors
+    // Always load remote script to match provided integration
+    const shouldUseRemote = true;
 
     const initializeForm = () => {
       // Remove any existing scripts
@@ -85,30 +83,43 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
               form: "#email-form",
               apiKey: "0f0db22798ae5405f30e5c1233bb3152863102af",
               registrationCallback: function (data: any, goFurther: () => void) {
-                // Always route to Results inside the app (do not redirect to terminal)
-                try {
-                  if ((window as any).utag) {
-                    try {
-                      (window as any).utag.view({
-                        "page_broker": "bvi",
-                        "page_language": "es-lm",
-                        "page_system": "promo",
-                        "product_category": "registration",
-                        "event_type": "order",
-                        "customer_profile_id": data.data?.clientID,
-                      });
-                    } catch (e) {
-                      console.warn('utag.view failed', e);
-                    }
+
+                if ((window as any).utag) {
+                  try {
+                    (window as any).utag.view({
+                      "page_broker": "bvi",
+                      "page_language": "es-lm",
+                      "page_system": "promo",
+                      "product_category": "registration",
+                      "event_type": "order",
+                      "customer_profile_id": data.data?.clientID,
+                    }, () => {
+                      body?.classList.toggle('loading');
+                      setTimeout(() => {
+                        try { goFurther && goFurther(); } catch {}
+                        const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                        const name = data.data?.name || data.data?.firstName || 'User';
+                        onNext(name, email);
+                      }, 1000);
+                    });
+                  } catch (e) {
+                    console.warn('utag.view failed', e);
+                    body?.classList.toggle('loading');
+                    setTimeout(() => {
+                      try { goFurther && goFurther(); } catch {}
+                      const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                      const name = data.data?.name || data.data?.firstName || 'User';
+                      onNext(name, email);
+                    }, 1000);
                   }
-                  const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                  const name = data.data?.name || data.data?.firstName || 'User';
-                  onNext(name, email);
-                } catch (err) {
-                  console.warn('registrationCallback error, using local fallback', err);
-                  const email = (emailInput as HTMLInputElement)?.value || 'user@example.com';
-                  const name = (email.split('@')[0]) || 'Usuario';
-                  onNext(name, email);
+                } else {
+                  body?.classList.toggle('loading');
+                  setTimeout(() => {
+                    try { goFurther && goFurther(); } catch {}
+                    const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                    const name = data.data?.name || data.data?.firstName || 'User';
+                    onNext(name, email);
+                  }, 1000);
                 }
               }
             });
@@ -206,7 +217,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
         <form 
           ref={formRef} 
           method="post" 
-          className="space-y-4"
+          className="horizontal_form space-y-4"
           data-name="Email_Form" 
           id="email-form" 
           name="email-form"
