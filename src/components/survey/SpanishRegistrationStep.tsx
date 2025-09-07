@@ -113,7 +113,6 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                     }, () => {
                       body?.classList.toggle('loading');
                       setTimeout(() => {
-                        try { goFurther && goFurther(); } catch {}
                         const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                         const name = data.data?.name || data.data?.firstName || 'User';
                         onNext(name, email);
@@ -123,7 +122,6 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                     console.warn('utag.view failed', e);
                     body?.classList.toggle('loading');
                     setTimeout(() => {
-                      try { goFurther && goFurther(); } catch {}
                       const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                       const name = data.data?.name || data.data?.firstName || 'User';
                       onNext(name, email);
@@ -132,7 +130,6 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                 } else {
                   body?.classList.toggle('loading');
                   setTimeout(() => {
-                    try { goFurther && goFurther(); } catch {}
                     const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                     const name = data.data?.name || data.data?.firstName || 'User';
                     onNext(name, email);

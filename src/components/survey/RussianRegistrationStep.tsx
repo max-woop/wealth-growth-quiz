@@ -76,8 +76,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
                   }
                 }
 
-                // Go further in provider, then advance app flow
-                try { goFurther && goFurther(); } catch {}
+                // Route to Results inside the app only (do not open terminal)
                 const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                 const name = data.data?.name || data.data?.firstName || 'User';
                 onNext(name, email);
