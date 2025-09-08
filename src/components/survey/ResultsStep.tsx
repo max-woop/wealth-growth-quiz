@@ -361,7 +361,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
   const appUrls = getAppStoreUrls();
   
   return (
-    <div className="animate-fadeIn py-3 px-3 max-w-4xl mx-auto">
+    <div className="animate-fadeIn py-3 px-3 max-w-md mx-auto">
       {/* Hero Section - Enhanced Design */}
       <div className="text-center mb-4 md:mb-6">
         <div className="inline-block bg-gradient-to-r from-[#00B915] to-[#00A012] text-white px-6 py-2 rounded-full mb-4 shadow-lg">
@@ -395,14 +395,12 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF5722] animate-pulse opacity-75 -z-10" />
           </button>
           
-          {/* Floating elements around button */}
-          <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full text-xs font-bold animate-bounce hidden sm:block">
-            {language === 'ru' ? 'БЕСПЛАТНО' : 'FREE'}
-          </div>
+          {/* Badge removed to match provided layout */}
         </div>
       </div>
 
-      {/* Wealth Growth Profile Section */}
+      {/* Wealth Growth Profile Section (hidden per provided layout) */}
+      {false && (
       <div className="mb-6 md:mb-8">
         <div className="text-center mb-4">
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 leading-tight px-2">
@@ -560,72 +558,21 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </div>
         )}
       </div>
+      )}
 
-      {/* Enhanced Trust Stats - Improved Design */}
-      <div className="mb-6 md:mb-8">
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl p-3 shadow-lg border border-blue-100">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-4xl mx-auto">
-            {/* Years in Market */}
-            <div className="text-center group">
-              <div className="relative mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <div className="text-xs sm:text-sm font-bold text-white">25+</div>
-                </div>
-                {/* Decorative ring */}
-                <div className="absolute inset-0 w-10 h-10 sm:w-12 sm:h-12 border-2 border-orange-200 rounded-full mx-auto animate-pulse opacity-50" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-xs leading-tight px-0.5">
-                {t.yearsInMarket}
-              </h3>
-              <div className="w-4 sm:w-6 h-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full mx-auto mt-1" />
-            </div>
-            
-            {/* Clients Worldwide */}
-            <div className="text-center group">
-              <div className="relative mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <div className="text-xs sm:text-sm font-bold text-white">3M+</div>
-                </div>
-                {/* Decorative ring */}
-                <div className="absolute inset-0 w-10 h-10 sm:w-12 sm:h-12 border-2 border-orange-200 rounded-full mx-auto animate-pulse opacity-50" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-xs leading-tight px-0.5">
-                {t.clientsWorldwide}
-              </h3>
-              <div className="w-4 sm:w-6 h-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full mx-auto mt-1" />
-            </div>
-            
-            {/* 24/7 Support */}
-            <div className="text-center group">
-              <div className="relative mb-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </div>
-                {/* Decorative ring */}
-                <div className="absolute inset-0 w-10 h-10 sm:w-12 sm:h-12 border-2 border-orange-200 rounded-full mx-auto animate-pulse opacity-50" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-xs leading-tight px-0.5">
-                {t.support247}
-              </h3>
-              <div className="w-4 sm:w-6 h-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full mx-auto mt-1" />
-            </div>
-          </div>
-          
-          {/* Additional trust indicators */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-2 pt-2 border-t border-blue-200 text-center">
-            <div className="flex items-center gap-2 text-blue-700">
-              <Shield className="w-3 h-3" />
-              <span className="text-xs font-semibold">{language === 'ru' ? 'Лицензированный' : 'Licensed'}</span>
-            </div>
-            <div className="flex items-center gap-2 text-blue-700">
-              <Award className="w-3 h-3" />
-              <span className="text-xs font-semibold">{language === 'ru' ? 'Награды' : 'Award Winner'}</span>
-            </div>
-            <div className="flex items-center gap-2 text-blue-700">
-              <Globe className="w-3 h-3" />
-              <span className="text-xs font-semibold">{language === 'ru' ? 'Глобальный' : 'Global'}</span>
-            </div>
-          </div>
+      {/* Trust cards */}
+      <div className="mb-6 md:mb-8 space-y-3">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+          <div className="text-2xl font-extrabold text-gray-900 mb-1">25+</div>
+          <div className="text-sm text-gray-700">{t.yearsInMarket}</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+          <div className="text-2xl font-extrabold text-gray-900 mb-1">3M+</div>
+          <div className="text-sm text-gray-700">{t.clientsWorldwide}</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+          <div className="text-2xl font-extrabold text-gray-900 mb-1">24/7</div>
+          <div className="text-sm text-gray-700">{t.support247}</div>
         </div>
       </div>
 
@@ -668,7 +615,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           {getTradingToolsTitle()}
         </h2>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
           {/* Enhanced tool cards without white borders */}
           {[
             { icon: MessageCircle, title: t.chatGPT, gradient: 'from-green-400 to-blue-500' },
@@ -678,14 +625,11 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
             { icon: DollarSign, title: t.quickTakeProfit, gradient: 'from-green-400 to-emerald-500' },
             { icon: Copy, title: t.copyTrading, gradient: 'from-red-400 to-pink-500' }
           ].map((tool, index) => (
-            <div key={index} className="text-center bg-gradient-to-br from-gray-50 to-white rounded-lg p-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group border border-gray-100">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 shadow-inner flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                {/* Direct gradient icon without white border container */}
-                <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br ${tool.gradient} rounded-md flex items-center justify-center shadow-lg`}>
-                  <tool.icon className="w-3 h-3 text-white" />
-                </div>
+            <div key={index} className="text-center bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-orange-100 flex items-center justify-center">
+                <tool.icon className="w-5 h-5 text-orange-500" />
               </div>
-              <h3 className="font-bold text-gray-900 text-xs leading-tight px-0.5">{tool.title}</h3>
+              <h3 className="font-bold text-gray-900 text-xs leading-tight">{tool.title}</h3>
             </div>
           ))}
         </div>
@@ -702,7 +646,8 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </button>
       </div>
 
-      {/* App Download Section - moved from DownloadStep */}
+      {/* App Download Section (hidden) */}
+      {false && (
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-5 mb-6">
         <div className="text-center mb-4">
           <div className="inline-block p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3">
@@ -787,6 +732,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </div>
         </div>
       </div>
+      )}
 
       {/* Market Info Popup */}
       {selectedMarket && (
@@ -807,11 +753,11 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </button>
       </div>
 
-      {/* Enhanced Risk Warning */}
-      <div className="mt-4 p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-lg">
+      {/* Risk Warning */}
+      <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
         <div className="flex items-start gap-2">
-          <div className="w-4 h-4 sm:w-5 sm:h-5 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <Shield className="w-3 h-3 text-white" />
+          <div className="w-5 h-5 text-yellow-600 flex items-center justify-center flex-shrink-0">
+            <Shield className="w-4 h-4" />
           </div>
           <div>
             <p className="text-xs text-gray-600 leading-tight">
