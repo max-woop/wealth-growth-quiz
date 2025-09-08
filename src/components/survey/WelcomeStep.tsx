@@ -116,21 +116,6 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
           <p className="text-sm sm:text-base text-gray-600 mb-4 max-w-md mx-auto">
             {t.takeQuizDescription}
           </p>
-          {/* Quick benefits */}
-          <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
-            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
-              <div className="text-lg">⚡</div>
-              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'1 минута':'1 min'}</div>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
-              <div className="text-lg">🧭</div>
-              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'Персонально':'Personalized'}</div>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
-              <div className="text-lg">✅</div>
-              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'Без опыта':'No experience'}</div>
-            </div>
-          </div>
         </div>
 
         {/* Gender Selection */}
@@ -140,11 +125,19 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
               <button 
                 key={option.value}
                 onClick={() => handleGenderSelect(option.value)}
-                className="flex-1 bg-white border-2 border-gray-100 rounded-xl p-3 
-                         hover:border-[#00B915] transition-all duration-300 group"
+                className="flex-1 bg-white border-2 border-gray-100 rounded-xl p-2 
+                         hover:border-[#00B915] transition-all duration-300 group overflow-hidden"
               >
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">{option.value === 'Male' ? '👨' : '👩'}</span>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-full h-32 overflow-hidden rounded-lg">
+                    <OptimizedImage
+                      src={option.image}
+                      alt={option.description}
+                      className="w-full h-full"
+                      priority={true}
+                      sizes="(max-width: 768px) 150px, 200px"
+                    />
+                  </div>
                   <span className="font-medium text-sm text-gray-900 group-hover:text-[#00B915]">
                     {option.description}
                   </span>

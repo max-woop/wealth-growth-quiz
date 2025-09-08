@@ -560,20 +560,14 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
       </div>
       }
 
-      {/* Trust cards */}
-      <div className="mb-6 md:mb-8 space-y-3">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-          <div className="text-2xl font-extrabold text-gray-900 mb-1">25+</div>
-          <div className="text-sm text-gray-700">{t.yearsInMarket}</div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-          <div className="text-2xl font-extrabold text-gray-900 mb-1">3M+</div>
-          <div className="text-sm text-gray-700">{t.clientsWorldwide}</div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-          <div className="text-2xl font-extrabold text-gray-900 mb-1">24/7</div>
-          <div className="text-sm text-gray-700">{t.support247}</div>
-        </div>
+      {/* Trust cards in 3-column grid for landing-like look */}
+      <div className="mb-6 md:mb-8 grid grid-cols-3 gap-3">
+        {[{n:'25+', t:t.yearsInMarket},{n:'3M+', t:t.clientsWorldwide},{n:'24/7', t:t.support247}].map((item,idx)=> (
+          <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 text-center">
+            <div className="text-lg font-extrabold text-gray-900 mb-1">{item.n}</div>
+            <div className="text-[11px] text-gray-700 leading-tight">{item.t}</div>
+          </div>
+        ))}
       </div>
 
       {/* Enhanced Testimonials Section */}
@@ -609,7 +603,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </div>
       </div>
 
-      {/* Enhanced Trading Tools Section - Removed White Borders */}
+      {/* Feature grid like landing */}
       <div className="mb-6 md:mb-8">
         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 text-center mb-4 leading-tight px-2">
           {getTradingToolsTitle()}
