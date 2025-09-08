@@ -98,23 +98,12 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
         </div>
       </div>
 
-      {/* Hero Image */}
-      <div className="flex justify-center mb-6">
-        <div className="w-full max-w-md">
-          <OptimizedImage
-            src={withBase('/assets/image copy copy.png')}
-            alt="Trading Platform"
-            className="w-full h-auto rounded-xl shadow-lg"
-            priority={true}
-            sizes="(max-width: 768px) 100vw, 448px"
-          />
-        </div>
-      </div>
+      {/* Removed hero image for cleaner mobile layout */}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-center">
         {/* Hero Section */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold mb-3 bg-gradient-to-r from-[#222834] to-[#2C3444] bg-clip-text text-transparent">
             {t.wealthGrowthChallenge}
           </h1>
@@ -124,31 +113,38 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
             <span className="text-sm font-semibold">{t.oneMinuteBadge}</span>
           </div>
           
-          <p className="text-sm sm:text-base text-gray-600 mb-3 max-w-md mx-auto">
+          <p className="text-sm sm:text-base text-gray-600 mb-4 max-w-md mx-auto">
             {t.takeQuizDescription}
           </p>
+          {/* Quick benefits */}
+          <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className="text-lg">⚡</div>
+              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'1 минута':'1 min'}</div>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className="text-lg">🧭</div>
+              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'Персонально':'Personalized'}</div>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className="text-lg">✅</div>
+              <div className="text-[11px] text-gray-700 leading-tight">{language==='ru'?'Без опыта':'No experience'}</div>
+            </div>
+          </div>
         </div>
 
         {/* Gender Selection */}
-        <div className="max-w-xs mx-auto mb-8">        
+        <div className="max-w-xs mx-auto mb-6">        
           <div className="flex justify-center gap-3">
             {genderOptions.map((option) => (
               <button 
                 key={option.value}
                 onClick={() => handleGenderSelect(option.value)}
-                className="flex-1 bg-white border-2 border-gray-100 rounded-xl p-2 
-                         hover:border-[#00B915] transition-all duration-300 group overflow-hidden"
+                className="flex-1 bg-white border-2 border-gray-100 rounded-xl p-3 
+                         hover:border-[#00B915] transition-all duration-300 group"
               >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-full h-32 overflow-hidden rounded-lg">
-                    <OptimizedImage
-                      src={option.image}
-                      alt={option.description}
-                      className="w-full h-full"
-                      priority={true}
-                      sizes="(max-width: 768px) 150px, 200px"
-                    />
-                  </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xl">{option.value === 'Male' ? '👨' : '👩'}</span>
                   <span className="font-medium text-sm text-gray-900 group-hover:text-[#00B915]">
                     {option.description}
                   </span>
