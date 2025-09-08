@@ -399,8 +399,8 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </div>
       </div>
 
-      {/* Wealth Growth Profile Section (hidden per provided layout) */}
-      {false && (
+      {/* Wealth Growth Profile Section */}
+      {
       <div className="mb-6 md:mb-8">
         <div className="text-center mb-4">
           <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 leading-tight px-2">
@@ -558,7 +558,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </div>
         )}
       </div>
-      )}
+      }
 
       {/* Trust cards */}
       <div className="mb-6 md:mb-8 space-y-3">
@@ -646,8 +646,8 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </button>
       </div>
 
-      {/* App Download Section (hidden) */}
-      {false && (
+      {/* App Download Section */}
+      {
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-5 mb-6">
         <div className="text-center mb-4">
           <div className="inline-block p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3">
@@ -732,7 +732,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
           </div>
         </div>
       </div>
-      )}
+      }
 
       {/* Market Info Popup */}
       {selectedMarket && (
