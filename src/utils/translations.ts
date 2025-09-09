@@ -618,7 +618,7 @@ const translations: Record<Language, Translations> = {
     
     // Results page
     stepByStepGuideReady: "Your Step-by-Step Trading Guide Is Ready",
-    guideWaitingDescription: "Your guide's waiting in the Libertex app—download now and start growing your wealth!",
+    guideWaitingDescription: "Your guide is ready — get it via the link below.",
     yearsInMarket: "25+ Years in the Market",
     clientsWorldwide: "3M+ Clients Worldwide",
     support247: "24/7 Support",
@@ -970,7 +970,7 @@ const translations: Record<Language, Translations> = {
     
     // Results page
     stepByStepGuideReady: "Пошаговое руководство по трейдингу ждёт вас",
-    guideWaitingDescription: "Заберите его в приложении Libertex — скачайте сейчас и начните преумножать свой капитал!",
+    guideWaitingDescription: "Заберите его по ссылке ниже — начните преумножать свой капитал!",
     yearsInMarket: "25+ лет на рынке",
     clientsWorldwide: "3+ миллиона клиентов по всему миру",
     support247: "Поддержка 24/7",
@@ -1322,7 +1322,7 @@ const translations: Record<Language, Translations> = {
     
     // Results page
     stepByStepGuideReady: "Tu guía paso a paso de trading está lista",
-    guideWaitingDescription: "¡Tu guía te está esperando en la app de Libertex—descarga ahora y comienza a hacer crecer tu riqueza!",
+    guideWaitingDescription: "Tu guía está lista — consíguela en el enlace de abajo.",
     yearsInMarket: "25+ Años en el mercado",
     clientsWorldwide: "3M+ Clientes en todo el mundo",
     support247: "Soporte 24/7",

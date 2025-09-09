@@ -135,6 +135,8 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
   };
   
   // Track guide download clicks
+  const appBlockRef = React.useRef<HTMLDivElement | null>(null);
+
   const handleGuideDownload = () => {
     trackFacebookEvent(FacebookEvents.GUIDE_DOWNLOAD_CLICKED);
     
@@ -148,19 +150,20 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
     });
     
     // Try to download PDF in background, fallback to new tab if needed
-    try {
-      const link = document.createElement('a');
-      link.href = getGuideUrl();
-      link.download = 'libertex-trading-guide.pdf';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      // Fallback: open in new tab if download fails
-      window.open(getGuideUrl(), '_blank', 'noopener,noreferrer');
-    }
+    // Start background download
+    const link = document.createElement('a');
+    link.href = getGuideUrl();
+    link.download = 'libertex-trading-guide.pdf';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Smooth scroll to app download section
+    setTimeout(() => {
+      appBlockRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   // Get skill level based on investment readiness
@@ -358,6 +361,10 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
   };
 
   const testimonials = getTestimonials();
+  const [testimonialIndex, setTestimonialIndex] = React.useState(0);
+  const nextTestimonial = () => setTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+  const prevTestimonial = () => setTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const currentTestimonial = testimonials[testimonialIndex];
   const appUrls = getAppStoreUrls();
   
   return (
@@ -570,64 +577,42 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         ))}
       </div>
 
-      {/* Enhanced Testimonials Section */}
+      {/* Testimonials slider - compact */}
       <div className="mb-6 md:mb-8">
         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 text-center mb-4 px-2">
           {t.seeWhatUsersSay}
         </h2>
-        
-        <div className="space-y-3 max-w-4xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-white p-3 rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <span className="text-white font-bold text-sm">{testimonial.initial}</span>
+        <div className="max-w-md mx-auto">
+          <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">{currentTestimonial.initial}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-gray-900 text-sm">{currentTestimonial.name}</span>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{currentTestimonial.role}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 mb-2">
-                    <span className="font-bold text-gray-900 text-sm">{testimonial.name}</span>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{testimonial.role}</span>
-                  </div>
-                  <div className="flex mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-700 text-sm leading-relaxed italic">
-                    {testimonial.text}
-                  </p>
+                <div className="flex mb-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                  ))}
                 </div>
+                <p className="text-gray-700 text-sm leading-relaxed italic">
+                  {currentTestimonial.text}
+                </p>
               </div>
             </div>
-          ))}
+            <div className="flex justify-between mt-3">
+              <button onClick={prevTestimonial} className="text-sm text-gray-600 px-3 py-1 rounded-lg border border-gray-200">‹</button>
+              <div className="text-xs text-gray-500">{testimonialIndex + 1}/{testimonials.length}</div>
+              <button onClick={nextTestimonial} className="text-sm text-gray-600 px-3 py-1 rounded-lg border border-gray-200">›</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Feature grid like landing */}
-      <div className="mb-6 md:mb-8">
-        <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 text-center mb-4 leading-tight px-2">
-          {getTradingToolsTitle()}
-        </h2>
-        
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
-          {/* Enhanced tool cards without white borders */}
-          {[
-            { icon: MessageCircle, title: t.chatGPT, gradient: 'from-green-400 to-blue-500' },
-            { icon: BarChart3, title: t.tradingSignals, gradient: 'from-purple-400 to-pink-500' },
-            { icon: Brain, title: t.tradingIdeas, gradient: 'from-yellow-400 to-orange-500' },
-            { icon: Repeat, title: t.autoTrading, gradient: 'from-blue-400 to-indigo-500' },
-            { icon: DollarSign, title: t.quickTakeProfit, gradient: 'from-green-400 to-emerald-500' },
-            { icon: Copy, title: t.copyTrading, gradient: 'from-red-400 to-pink-500' }
-          ].map((tool, index) => (
-            <div key={index} className="text-center bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-orange-100 flex items-center justify-center">
-                <tool.icon className="w-5 h-5 text-orange-500" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-xs leading-tight">{tool.title}</h3>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Smart tools block removed per request */}
 
       {/* Enhanced Bottom CTA */}
       <div className="text-center mb-6 md:mb-8">
@@ -642,7 +627,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
 
       {/* App Download Section */}
       {
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-5 mb-6">
+      <div ref={appBlockRef} className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-5 mb-6">
         <div className="text-center mb-4">
           <div className="inline-block p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3">
             <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
