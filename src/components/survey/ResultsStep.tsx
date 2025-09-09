@@ -149,16 +149,10 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
       currency: 'USD'
     });
     
-    // Try to download PDF in background, fallback to new tab if needed
-    // Start background download
-    const link = document.createElement('a');
-    link.href = getGuideUrl();
-    link.download = 'libertex-trading-guide.pdf';
-    link.rel = 'noopener noreferrer';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Open PDF in a new tab so user stays on Results page
+    try {
+      window.open(getGuideUrl(), '_blank', 'noopener,noreferrer');
+    } catch {}
 
     // Smooth scroll to app download section
     setTimeout(() => {
@@ -368,7 +362,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
   const appUrls = getAppStoreUrls();
   
   return (
-    <div className="animate-fadeIn py-3 px-3 max-w-md mx-auto">
+    <div className="animate-fadeIn py-3 px-3 max-w-sm mx-auto">
       {/* Hero Section - Enhanced Design */}
       <div className="text-center mb-4 md:mb-6">
         <div className="inline-block bg-gradient-to-r from-[#00B915] to-[#00A012] text-white px-6 py-2 rounded-full mb-4 shadow-lg">
@@ -568,7 +562,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
       }
 
       {/* Trust cards in 3-column grid for landing-like look */}
-      <div className="mb-6 md:mb-8 grid grid-cols-3 gap-3">
+      <div className="mb-6 md:mb-8 grid grid-cols-3 gap-2">
         {[{n:'25+', t:t.yearsInMarket},{n:'3M+', t:t.clientsWorldwide},{n:'24/7', t:t.support247}].map((item,idx)=> (
           <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 text-center">
             <div className="text-lg font-extrabold text-gray-900 mb-1">{item.n}</div>
