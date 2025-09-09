@@ -137,7 +137,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
   // Track guide download clicks
   const appBlockRef = React.useRef<HTMLDivElement | null>(null);
 
-  const handleGuideDownload = () => {
+  const handleGuideDownload = async () => {
     trackFacebookEvent(FacebookEvents.GUIDE_DOWNLOAD_CLICKED);
     
     // Track additional Meta pixel event for Results page CTA
@@ -151,15 +151,21 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
     
     // Trigger file download without navigating away
     try {
+      const response = await fetch(getGuideUrl(), { mode: 'cors' });
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = getGuideUrl();
-      link.setAttribute('download', 'libertex-trading-guide.pdf');
-      link.rel = 'noopener noreferrer';
+      link.href = url;
+      link.download = 'libertex-trading-guide.pdf';
       link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch {}
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      // Fallback: open in new tab if browser blocks blob download
+      try { window.open(getGuideUrl(), '_blank', 'noopener,noreferrer'); } catch {}
+    }
 
     // Smooth scroll to app download section
     setTimeout(() => {
