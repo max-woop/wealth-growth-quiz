@@ -149,9 +149,16 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
       currency: 'USD'
     });
     
-    // Open PDF in a new tab so user stays on Results page
+    // Trigger file download without navigating away
     try {
-      window.open(getGuideUrl(), '_blank', 'noopener,noreferrer');
+      const link = document.createElement('a');
+      link.href = getGuideUrl();
+      link.setAttribute('download', 'libertex-trading-guide.pdf');
+      link.rel = 'noopener noreferrer';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch {}
 
     // Smooth scroll to app download section
@@ -578,7 +585,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
         </h2>
         <div className="max-w-md mx-auto">
           <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-            <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-[#FF6B35] to-[#FF5722] rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">{currentTestimonial.initial}</span>
               </div>
@@ -586,15 +593,15 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ persona, responses, restart, 
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-bold text-gray-900 text-sm">{currentTestimonial.name}</span>
                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{currentTestimonial.role}</span>
-                </div>
-                <div className="flex mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-700 text-sm leading-relaxed italic">
+                  </div>
+                  <div className="flex mb-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 text-sm leading-relaxed italic">
                   {currentTestimonial.text}
-                </p>
+                  </p>
               </div>
             </div>
             <div className="flex justify-between mt-3">
