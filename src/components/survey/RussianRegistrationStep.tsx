@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { trackFacebookEvent, FacebookEvents } from '../../utils/facebookPixel';
 
 interface RussianRegistrationStepProps {
   onNext: (name: string, email: string) => void;
@@ -76,9 +77,10 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
                   }
                 }
 
-                // Route to Results inside the app only (do not open terminal)
+                // Route to Results and fire CompleteRegistration to pixel
                 const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                 const name = data.data?.name || data.data?.firstName || 'User';
+                try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email }); } catch {}
                 onNext(name, email);
               }
             });

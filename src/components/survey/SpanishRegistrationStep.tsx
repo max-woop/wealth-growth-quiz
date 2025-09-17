@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { trackFacebookEvent, FacebookEvents } from '../../utils/facebookPixel';
 
 interface SpanishRegistrationStepProps {
   onNext: (name: string, email: string) => void;
@@ -113,6 +114,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                     }, () => {
                       body?.classList.toggle('loading');
                       setTimeout(() => {
+                        try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
                         const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                         const name = data.data?.name || data.data?.firstName || 'User';
                         onNext(name, email);
@@ -122,6 +124,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                     console.warn('utag.view failed', e);
                     body?.classList.toggle('loading');
                     setTimeout(() => {
+                      try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
                       const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                       const name = data.data?.name || data.data?.firstName || 'User';
                       onNext(name, email);
@@ -130,6 +133,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                 } else {
                   body?.classList.toggle('loading');
                   setTimeout(() => {
+                    try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
                     const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
                     const name = data.data?.name || data.data?.firstName || 'User';
                     onNext(name, email);
@@ -213,6 +217,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
     if (!form) return;
     const email = (form.querySelector('#email') as HTMLInputElement)?.value || 'user@example.com';
     const name = email.includes('@') ? email.split('@')[0] : 'Usuario';
+    try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email }); } catch {}
     onNext(name, email);
   };
 
