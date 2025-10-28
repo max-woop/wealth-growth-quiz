@@ -73,6 +73,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
             const regForm = (window as any).llLanding.create({
               form: "#email-form",
               apiKey: "f31393205171c159bdfbe0309ed574c4d8b52953",
+              langIso3: "spa",
               registrationCallback: function (data: any, goFurther: () => void) {
                 const eventData = {
                   "page_broker": "bvi",
@@ -216,9 +217,6 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
           onSubmit={handleLocalSubmit}
         >
           <div className="form-view space-y-3">
-            {/* Hidden field for language ISO3 code */}
-            <input type="hidden" id="langIso3" name="langIso3" value="spa" />
-            
             <div className="inputcontainer">
               <input 
                 className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
