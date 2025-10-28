@@ -11,38 +11,37 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
   const [integrationError, setIntegrationError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Feature flag to enable/disable remote SDK integration at build time
+    const ENABLE_REMOTE_ES = (import.meta as any).env?.VITE_ENABLE_REMOTE_ES === 'true';
+    if (!ENABLE_REMOTE_ES) {
+      return;
+    }
+
     const initializeForm = () => {
       // Remove any existing scripts
-      const existingScripts = document.querySelectorAll('script[src*="lib.libertex.org"], script[src*="partner-code"]');
-      existingScripts.forEach(script => script.remove());
+      const existingScript = document.querySelector('script[src*="lib.libertex.org"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
 
-      // Load the Libertex landing API script
+      // For strict integration, do not early return; always attempt remote
+
+      // Load the Libertex landing API script (PROD only)
       const script = document.createElement('script');
       script.src = 'https://lib.libertex.org/landing/js/landing-api.min.2.8.0.js';
       script.async = true;
       script.onerror = () => {
         console.error('Failed to load Libertex script');
         setIntegrationError('Error al cargar la biblioteca Libertex — usando formulario local.');
+        // Form will work locally without external API
       };
       document.body.appendChild(script);
 
       script.onload = () => {
         console.log('Libertex script loaded successfully');
-        
-        // Load partner code scripts
-        const partnerCodeScript1 = document.createElement('script');
-        partnerCodeScript1.src = 'https://lib.libertex.org/partner-code/v/partner-code.2.4.2.js';
-        partnerCodeScript1.defer = true;
-        document.body.appendChild(partnerCodeScript1);
-
-        const partnerCodeScript2 = document.createElement('script');
-        partnerCodeScript2.src = 'https://promo.libertex.org/lp/partner-code/partnerCodeLibertex.js';
-        partnerCodeScript2.defer = true;
-        document.body.appendChild(partnerCodeScript2);
-
         // Wait for form and API to be ready
         let attempts = 0;
-        const maxAttempts = 50;
+        const maxAttempts = 50; // Максимум 5 секунд (50 * 100ms)
         
         const initForm = () => {
           attempts++;
@@ -50,8 +49,13 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
           if (attempts > maxAttempts) {
             console.warn('Libertex form initialization timeout after', maxAttempts, 'attempts');
             setIntegrationError('Timeout al inicializar el formulario — usando formulario local.');
+            // Fallback to local form
             return;
           }
+          
+          console.log(`Attempt ${attempts}: Checking form and API...`);
+          console.log('formRef.current:', !!formRef.current);
+          console.log('llLanding available:', typeof (window as any).llLanding !== 'undefined');
           
           if (!formRef.current || typeof (window as any).llLanding === 'undefined') {
             setTimeout(initForm, 100);
@@ -59,65 +63,84 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
           }
 
           // Check if required elements exist
-          const loginInput = document.getElementById('login');
+          const emailInput = document.getElementById('email');
           const passwordInput = document.getElementById('password');
           const phoneInput = document.getElementById('phone');
+          const captchaContainer = document.getElementById('ll-captcha-container');
 
-          if (!loginInput || !passwordInput || !phoneInput) {
+          console.log('Form elements check:');
+          console.log('emailInput:', !!emailInput);
+          console.log('passwordInput:', !!passwordInput);
+          console.log('phoneInput:', !!phoneInput);
+          console.log('captchaContainer:', !!captchaContainer);
+
+          if (!emailInput || !passwordInput || !phoneInput || !captchaContainer) {
+            console.log('Some form elements missing, retrying...');
             setTimeout(initForm, 100);
             return;
           }
 
           try {
+            // Defensive: if SDK provides destroy, clear previous instances
+            try { (window as any).llLanding?.destroy?.(); } catch {}
+
+            // Ensure any expected SDK containers exist to avoid null innerHTML
+            const ensureContainer = (id: string) => {
+              if (!document.getElementById(id)) {
+                const el = document.createElement('div');
+                el.id = id;
+                el.style.display = 'block';
+                (formRef.current || document.body).appendChild(el);
+              }
+            };
+            // Common container ids some SDK builds expect
+            ['ll-captcha-container', 'captcha-container', 'captcha', 'llcaptcha'].forEach(ensureContainer);
+
             const body = document.querySelector('body');
             const regForm = (window as any).llLanding.create({
               form: "#email-form",
-              apiKey: "f31393205171c159bdfbe0309ed574c4d8b52953",
-              langIso3: "spa",
+              apiKey: "0f0db22798ae5405f30e5c1233bb3152863102af",
               registrationCallback: function (data: any, goFurther: () => void) {
-                const eventData = {
-                  "page_broker": "bvi",
-                  "page_language": "en",
-                  "page_system": "promo",
-                  "product_category": "registration",
-                  "event_type": "order",
-                  "customer_profile_id": data.data?.clientID,
-                };
-
-                if (data.data?.registrationMethod === "deferred") {
-                  eventData.product_category = "customer_profile_email";
-                  (eventData as any).customer_profile_email = data.landing.$form.login.value;
-                }
 
                 if ((window as any).utag) {
                   try {
-                    (window as any).utag.view(eventData, goFurther);
+                    (window as any).utag.view({
+                      "page_broker": "bvi",
+                      "page_language": "es-lm",
+                      "page_system": "promo",
+                      "product_category": "registration",
+                      "event_type": "order",
+                      "customer_profile_id": data.data?.clientID,
+                    }, () => {
+                      body?.classList.toggle('loading');
+                      setTimeout(() => {
+                        try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
+                        const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                        const name = data.data?.name || data.data?.firstName || 'User';
+                        onNext(name, email);
+                      }, 1000);
+                    });
                   } catch (e) {
                     console.warn('utag.view failed', e);
-                    goFurther();
+                    body?.classList.toggle('loading');
+                    setTimeout(() => {
+                      try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
+                      const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                      const name = data.data?.name || data.data?.firstName || 'User';
+                      onNext(name, email);
+                    }, 1000);
                   }
                 } else {
-                  goFurther();
+                  body?.classList.toggle('loading');
+                  setTimeout(() => {
+                    try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email: data.data?.email }); } catch {}
+                    const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
+                    const name = data.data?.name || data.data?.firstName || 'User';
+                    onNext(name, email);
+                  }, 1000);
                 }
-
-                // Track Facebook event and proceed
-                setTimeout(() => {
-                  try { 
-                    trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { 
-                      email: data.data?.email || (loginInput as HTMLInputElement).value 
-                    }); 
-                  } catch {}
-                  
-                  const email = data.data?.email || (loginInput as HTMLInputElement).value || 'user@example.com';
-                  const firstName = data.data?.firstName || (document.getElementById('firstName') as HTMLInputElement)?.value || '';
-                  const lastName = data.data?.lastName || (document.getElementById('lastName') as HTMLInputElement)?.value || '';
-                  const name = firstName && lastName ? `${firstName} ${lastName}` : firstName || email.split('@')[0];
-                  
-                  onNext(name, email);
-                }, 500);
               }
             });
-            
             console.log('Libertex form initialized successfully');
             setIntegrationReady(true);
           } catch (error) {
@@ -125,10 +148,11 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
             setIntegrationError('No se pudo inicializar la integración remota — usando formulario local.');
           }
           
-          // Apply error styles
+          // Принудительно применяем стили к сообщениям об ошибках
           const applyErrorStyles = () => {
             const errorElements = document.querySelectorAll('.error, .error-message, .field-error, .validation-error, [class*="error"], [class*="Error"]');
             errorElements.forEach((element: any) => {
+              // Стилизуем только сообщения об ошибках (не поля ввода)
               if (element.tagName !== 'INPUT') {
                 element.style.fontSize = '12px';
                 element.style.color = '#dc2626';
@@ -138,14 +162,18 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
                 element.style.fontWeight = '400';
               }
             });
+            
           };
           
+          // Применяем стили сразу и через интервалы
           applyErrorStyles();
           setInterval(applyErrorStyles, 1000);
         };
 
+        // Start initialization after a delay
         setTimeout(initForm, 500);
 
+        // Watchdog: if SDK never becomes ready within 8s, fallback to local
         setTimeout(() => {
           if (!integrationReady && typeof (window as any).llLanding === 'undefined') {
             console.warn('Libertex SDK did not initialize in time; falling back to local form');
@@ -187,10 +215,8 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
     e.preventDefault();
     const form = formRef.current;
     if (!form) return;
-    const email = (form.querySelector('#login') as HTMLInputElement)?.value || 'user@example.com';
-    const firstName = (form.querySelector('#firstName') as HTMLInputElement)?.value || '';
-    const lastName = (form.querySelector('#lastName') as HTMLInputElement)?.value || '';
-    const name = firstName && lastName ? `${firstName} ${lastName}` : firstName || email.split('@')[0];
+    const email = (form.querySelector('#email') as HTMLInputElement)?.value || 'user@example.com';
+    const name = email.includes('@') ? email.split('@')[0] : 'Usuario';
     try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email }); } catch {}
     onNext(name, email);
   };
@@ -210,87 +236,28 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
         <form 
           ref={formRef} 
           method="post" 
-          className="horizontal_form space-y-3"
-          data-name="Email Form" 
+          className="space-y-4"
+          data-name="Email_Form" 
           id="email-form" 
           name="email-form"
           onSubmit={handleLocalSubmit}
         >
-          <div className="form-view space-y-3">
+          <div className="form-view space-y-4">
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
-                id="firstName"
-                name="firstName"
-                placeholder="Nombre"
-                type="text"
-                autoComplete="given-name"
-                required
-              />
-            </div>
-
-            <div className="inputcontainer">
-              <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
-                id="lastName"
-                name="lastName"
-                placeholder="Apellido"
-                type="text"
-                autoComplete="family-name"
-                required
-              />
-            </div>
-
-            <div className="inputcontainer">
-              <select 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm bg-white" 
-                id="iso3"
-                name="iso3"
-                required
-              >
-                <option value="">País</option>
-              </select>
-            </div>
-
-            <div className="inputcontainer">
-              <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
-                id="city"
-                name="city"
-                placeholder="Ciudad"
-                type="text"
-                autoComplete="address-level2"
-                required
-              />
-            </div>
-
-            <div className="inputcontainer">
-              <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
-                id="birthday"
-                name="birthday"
-                placeholder="Fecha de nacimiento"
-                type="date"
-                autoComplete="bday"
-                required
-              />
-            </div>
-
-            <div className="inputcontainer">
-              <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
-                id="login"
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
+                id="email"
                 name="login"
-                placeholder="E-mail"
+                placeholder="Nombre de usuario"
                 type="email"
-                autoComplete="email"
+                autoComplete="username"
                 required
               />
             </div>
 
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
                 id="password"
                 name="password"
                 placeholder="Contraseña"
@@ -302,7 +269,7 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
 
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
                 id="phone"
                 name="phone"
                 placeholder="Teléfono"
@@ -312,61 +279,25 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
               />
             </div>
 
-            <script className="ll-captcha-template" type="text/template" dangerouslySetInnerHTML={{
-              __html: `
-                <div class="ll-captcha-container">
-                  <div class="field">
-                    <div data-ll-pending-for="captcha">
-                      <img src="" class="ll-captcha-image" width="150" height="40" alt="captcha">
-                      <button class="ll-captcha-refresh" type="button">Actualizar</button>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <input class="f-text horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" type="text" id="captcha" placeholder="Captcha" name="captcha">
-                  </div>
-                </div>
-              `
-            }} />
-
-            <div className="inputcontainer">
-              <div className="form-agree-input flex items-start gap-2">
-                <input 
-                  className="fx-form-checkbox-agree mt-1 flex-shrink-0" 
-                  type="checkbox" 
-                  name="agreedToTermsAndConditions"
-                  id="fx-form-agree"
-                  required
-                />
-                <label htmlFor="fx-form-agree" className="text-xs text-gray-600 leading-tight">
-                  Acepto{' '}
-                  <a href="https://libertex.org/personal-data-processing" className="text-[#00B915] hover:underline" target="_blank" rel="noopener noreferrer">
-                    el procesamiento
-                  </a>
-                  {' '}de mis datos personales y los{' '}
-                  <a href="https://libertex.org/terms-and-conditions" className="text-[#00B915] hover:underline" target="_blank" rel="noopener noreferrer">
-                    términos y condiciones
-                  </a>
-                  {' '}del servicio
-                </label>
-              </div>
-            </div>
+            <div id="ll-captcha-container"></div>
 
             <input 
               className="btn w-full bg-[#00B915] hover:bg-[#008F10] text-white py-3 px-4 rounded-lg font-medium transition-colors cursor-pointer" 
               data-wait="Por favor espera..."
               type="submit"
-              value="Abrir una cuenta"
+              value="Abrir cuenta"
             />
           </div>
         </form>
 
         {integrationError && (
           <div 
-            className="integration-error mt-3"
+            className="integration-error"
             style={{
               fontSize: '12px',
               color: '#dc2626',
               textAlign: 'center',
+              marginTop: '8px',
               padding: '8px 12px',
               backgroundColor: '#fef2f2',
               border: '1px solid #fecaca',
@@ -376,9 +307,12 @@ const SpanishRegistrationStep: React.FC<SpanishRegistrationStepProps> = ({ onNex
             }}
           >
             <span style={{ display: 'inline-block', marginRight: '4px', fontSize: '10px' }}>⚠️</span>
-            {integrationError}
+            {integrationError} — usando formulario local.
           </div>
         )}
+        <p className="text-sm text-gray-500 text-center mt-4">
+          Al crear una cuenta, aceptas nuestros Términos de Servicio y Política de Privacidad.
+        </p>
       </div>
     </div>
   );
