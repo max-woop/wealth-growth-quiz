@@ -11,88 +11,117 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
   useEffect(() => {
     const initializeForm = () => {
       // Remove any existing scripts
-      const existingScript = document.querySelector('script[src*="lib.fxclub.org"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
+      const existingScripts = document.querySelectorAll('script[src*="lib.libertex.org"], script[src*="partner-code"]');
+      existingScripts.forEach(script => script.remove());
 
-      // Load the FXClub landing API script (always, to match provided integration)
+      // Load the Libertex landing API script for Russian market
       const script = document.createElement('script');
-      script.src = 'https://lib.fxclub.org/landing/js/landing-api.min.2.8.0.js';
+      script.src = 'https://lib.libertex.org/landing/js/landing-api.min.2.8.0.js';
       script.async = true;
       script.onerror = () => {
-        console.error('Failed to load FXClub script');
+        console.error('Failed to load Libertex script');
       };
       document.body.appendChild(script);
 
       script.onload = () => {
-        console.log('FXClub script loaded successfully');
+        console.log('Libertex script loaded successfully');
+        
+        // Load partner code scripts
+        const partnerCodeScript1 = document.createElement('script');
+        partnerCodeScript1.src = 'https://lib.libertex.org/partner-code/v/partner-code.2.4.2.js';
+        partnerCodeScript1.defer = true;
+        document.body.appendChild(partnerCodeScript1);
+
+        const partnerCodeScript2 = document.createElement('script');
+        partnerCodeScript2.src = 'https://promo.libertex.org/lp/partner-code/partnerCodeLibertex.js';
+        partnerCodeScript2.defer = true;
+        document.body.appendChild(partnerCodeScript2);
+
         // Wait for form and API to be ready
         let attempts = 0;
-        const maxAttempts = 50; // Максимум 5 секунд (50 * 100ms)
+        const maxAttempts = 50;
         
         const initForm = () => {
           attempts++;
           
           if (attempts > maxAttempts) {
-            console.warn('FXClub form initialization timeout after', maxAttempts, 'attempts');
+            console.warn('Libertex form initialization timeout after', maxAttempts, 'attempts');
             return;
           }
           
-          if (!formRef.current || typeof (window as any).fxcLanding === 'undefined') {
+          if (!formRef.current || typeof (window as any).llLanding === 'undefined') {
             setTimeout(initForm, 100);
             return;
           }
 
           // Check if required elements exist
-          const emailInput = document.getElementById('email');
+          const loginInput = document.getElementById('login');
           const passwordInput = document.getElementById('password');
           const phoneInput = document.getElementById('phone');
-          const captchaContainer = document.getElementById('fxc-captcha-container');
 
-          if (!emailInput || !passwordInput || !phoneInput || !captchaContainer) {
+          if (!loginInput || !passwordInput || !phoneInput) {
             setTimeout(initForm, 100);
             return;
           }
 
           try {
-            (window as any).fxcLanding.create({
+            const body = document.querySelector('body');
+            const regForm = (window as any).llLanding.create({
               form: "#email-form",
-              apiKey: "d24c74c0d020796a1f7c81c1d0689b00bad73716",
+              apiKey: "a7e2cea9c8e9094439563c899175660318c1916c",
               registrationCallback: function (data: any, goFurther: () => void) {
-                
-                // Send utag per requirements
-                if ((window as any).utag) {
-                  try {
-                    (window as any).utag.view({
-                      "page_broker": "bvi",
-                      "page_language": "ru-ru",
-                      "page_system": "promo",
-                      "product_category": "registration",
-                      "event_type": "order",
-                      "customer_profile_id": data.data?.FxBankClientID,
-                    });
-                  } catch (e) {
-                    console.warn('utag.view failed', e);
-                  }
+                const eventData = {
+                  "page_broker": "bvi",
+                  "page_language": "ru",
+                  "page_system": "promo",
+                  "product_category": "registration",
+                  "event_type": "order",
+                  "customer_profile_id": data.data?.clientID,
+                };
+
+                if (data.data?.registrationMethod === "deferred") {
+                  eventData.product_category = "customer_profile_email";
+                  (eventData as any).customer_profile_email = data.landing.$form.login.value;
                 }
 
-                // Route to Results and fire CompleteRegistration to pixel
-                const email = data.data?.email || (emailInput as HTMLInputElement).value || 'user@example.com';
-                const name = data.data?.name || data.data?.firstName || 'User';
-                try { trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { email }); } catch {}
-                onNext(name, email);
+                if ((window as any).utag) {
+                  try {
+                    (window as any).utag.view(eventData, goFurther);
+                  } catch (e) {
+                    console.warn('utag.view failed', e);
+                    goFurther();
+                  }
+                } else {
+                  goFurther();
+                }
+
+                // Track Facebook event and proceed
+                setTimeout(() => {
+                  try { 
+                    trackFacebookEvent(FacebookEvents.REGISTRATION_SUCCESS, { 
+                      email: data.data?.email || (loginInput as HTMLInputElement).value 
+                    }); 
+                  } catch {}
+                  
+                  const email = data.data?.email || (loginInput as HTMLInputElement).value || 'user@example.com';
+                  const firstName = data.data?.firstName || (document.getElementById('firstName') as HTMLInputElement)?.value || '';
+                  const lastName = data.data?.lastName || (document.getElementById('lastName') as HTMLInputElement)?.value || '';
+                  const name = firstName && lastName ? `${firstName} ${lastName}` : firstName || email.split('@')[0];
+                  
+                  onNext(name, email);
+                }, 500);
               }
             });
+            
+            console.log('Libertex form initialized successfully');
           } catch (error) {
-            console.error('Error initializing FXClub form:', error);
+            console.error('Error initializing Libertex form:', error);
           }
           
-          // Принудительно применяем стили к сообщениям об ошибках
+          // Apply error styles
           const applyErrorStyles = () => {
             const errorElements = document.querySelectorAll('.error, .error-message, .field-error, .validation-error, [class*="error"], [class*="Error"]');
             errorElements.forEach((element: any) => {
-              // Стилизуем только сообщения об ошибках (не поля ввода)
               if (element.tagName !== 'INPUT') {
                 element.style.fontSize = '12px';
                 element.style.color = '#dc2626';
@@ -102,27 +131,23 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
                 element.style.fontWeight = '400';
               }
             });
-            
           };
           
-          // Применяем стили сразу и через интервалы
           applyErrorStyles();
           setInterval(applyErrorStyles, 1000);
         };
 
-        // Start initialization after a delay
         setTimeout(initForm, 500);
 
-        // Watchdog: if SDK never becomes ready within 8s, fallback silently
         setTimeout(() => {
-          if (typeof (window as any).fxcLanding === 'undefined') {
-            console.warn('FXClub SDK did not initialize in time; keeping local fallback');
+          if (typeof (window as any).llLanding === 'undefined') {
+            console.warn('Libertex SDK did not initialize in time; keeping local fallback');
           }
         }, 8000);
       };
 
       script.onerror = (error) => {
-        console.error('Failed to load FXClub script:', error);
+        console.error('Failed to load Libertex script:', error);
       };
 
       return script;
@@ -162,16 +187,75 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
         <form 
           ref={formRef} 
           method="post" 
-          className="horizontal_form space-y-4"
-          data-name="Email_Form" 
+          className="horizontal_form space-y-3"
+          data-name="Email Form" 
           id="email-form" 
           name="email-form"
         >
-          <div className="form-view space-y-4">
+          <div className="form-view space-y-3">
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
-                id="email"
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                id="firstName"
+                name="firstName"
+                placeholder="Имя"
+                type="text"
+                autoComplete="given-name"
+                required
+              />
+            </div>
+
+            <div className="inputcontainer">
+              <input 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                id="lastName"
+                name="lastName"
+                placeholder="Фамилия"
+                type="text"
+                autoComplete="family-name"
+                required
+              />
+            </div>
+
+            <div className="inputcontainer">
+              <select 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm bg-white" 
+                id="iso3"
+                name="iso3"
+                required
+              >
+                <option value="">Страна</option>
+              </select>
+            </div>
+
+            <div className="inputcontainer">
+              <input 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                id="city"
+                name="city"
+                placeholder="Город"
+                type="text"
+                autoComplete="address-level2"
+                required
+              />
+            </div>
+
+            <div className="inputcontainer">
+              <input 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                id="birthday"
+                name="birthday"
+                placeholder="Дата рождения"
+                type="date"
+                autoComplete="bday"
+                required
+              />
+            </div>
+
+            <div className="inputcontainer">
+              <input 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
+                id="login"
                 name="login"
                 placeholder="E-mail"
                 type="email"
@@ -182,7 +266,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
 
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
                 id="password"
                 name="password"
                 placeholder="Пароль"
@@ -194,7 +278,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
 
             <div className="inputcontainer">
               <input 
-                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors" 
+                className="horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" 
                 id="phone"
                 name="phone"
                 placeholder="Телефон"
@@ -204,7 +288,44 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
               />
             </div>
 
-            <div id="fxc-captcha-container"></div>
+            <script className="ll-captcha-template" type="text/template" dangerouslySetInnerHTML={{
+              __html: `
+                <div class="ll-captcha-container">
+                  <div class="field">
+                    <div data-ll-pending-for="captcha">
+                      <img src="" class="ll-captcha-image" width="150" height="40" alt="captcha">
+                      <button class="ll-captcha-refresh" type="button">Обновить</button>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <input class="f-text horizontalfield w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#00B915] focus:ring-1 focus:ring-[#00B915] outline-none transition-colors text-sm" type="text" id="captcha" placeholder="Капча" name="captcha">
+                  </div>
+                </div>
+              `
+            }} />
+
+            <div className="inputcontainer">
+              <div className="form-agree-input flex items-start gap-2">
+                <input 
+                  className="fx-form-checkbox-agree mt-1 flex-shrink-0" 
+                  type="checkbox" 
+                  name="agreedToTermsAndConditions"
+                  id="fx-form-agree"
+                  required
+                />
+                <label htmlFor="fx-form-agree" className="text-xs text-gray-600 leading-tight">
+                  Я согласен с{' '}
+                  <a href="https://libertex.org/personal-data-processing" className="text-[#00B915] hover:underline" target="_blank" rel="noopener noreferrer">
+                    обработкой
+                  </a>
+                  {' '}моих персональных данных и{' '}
+                  <a href="https://libertex.org/terms-and-conditions" className="text-[#00B915] hover:underline" target="_blank" rel="noopener noreferrer">
+                    условиями использования
+                  </a>
+                  {' '}сервиса
+                </label>
+              </div>
+            </div>
 
             <input 
               className="btn w-full bg-[#00B915] hover:bg-[#008F10] text-white py-3 px-4 rounded-lg font-medium transition-colors cursor-pointer" 
@@ -214,10 +335,6 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
             />
           </div>
         </form>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          Создавая аккаунт, вы соглашаетесь с нашими Условиями обслуживания и Политикой конфиденциальности.
-        </p>
       </div>
     </div>
   );
@@ -226,7 +343,7 @@ const RussianRegistrationStep: React.FC<RussianRegistrationStepProps> = ({ onNex
 // Extend Window interface for TypeScript
 declare global {
   interface Window {
-    fxcLanding: any;
+    llLanding: any;
     utag: any;
   }
 }
